@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'YOUR_GITHUB_REPO_URL'
+                    url: 'https://github.com/pandesuchitra877-lang/gs-rest-service-devops.git'
             }
         }
 
