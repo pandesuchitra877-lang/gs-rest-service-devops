@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo "Building branch: ${env.feature/test}"
+                echo "Building branch: ${env.BRANCH_NAME}"
             }
         }
 
@@ -72,10 +72,10 @@ pipeline {
 
     post {
         success {
-            echo "SUCCESS: ${env.feature/test}"
+            echo "SUCCESS: ${env.BRANCH_NAME}"
         }
         failure {
-            echo "FAILED: ${env.feature/test}"
+            echo "FAILED: ${env.BRANCH_NAME}"
         }
     }
 }
