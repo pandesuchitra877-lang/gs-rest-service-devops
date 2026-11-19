@@ -1,19 +1,24 @@
+
 pipeline {
     agent any
+
+    options {
+        skipDefaultCheckout(true)
+        disableConcurrentBuilds()
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/pandesuchitra877-lang/gs-rest-service-devops.git'
+                checkout scm
+                echo "Building branch: ${env.feature/test}"
             }
         }
 
         stage('Build') {
             steps {
                 dir('complete') {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean compile'
+                    sh 'bash ./mvnw clean compile'
                 }
             }
         }
@@ -21,24 +26,57 @@ pipeline {
         stage('Test') {
             steps {
                 dir('complete') {
-                    sh './mvnw test'
+                    sh 'bash ./mvnw test'
                 }
             }
         }
 
         stage('Package') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                }
+            }
             steps {
                 dir('complete') {
-                    sh './mvnw package -DskipTests'
+                    sh 'bash ./mvnw package -DskipTests'
                 }
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Archive JAR') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                }
+            }
             steps {
-                archiveArtifacts artifacts: 'complete/target/*.jar',
-                                 fingerprint: true
+                archiveArtifacts(
+                    artifacts: 'complete/target/*.jar',
+                    fingerprint: true
+                )
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Production deployment is not configured yet'
             }
         }
     }
+
+    post {
+        success {
+            echo "SUCCESS: ${env.feature/test}"
+        }
+        failure {
+            echo "FAILED: ${env.feature/test}"
+        }
+    }
 }
+
